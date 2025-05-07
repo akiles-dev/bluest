@@ -163,7 +163,7 @@ impl fmt::Debug for L2capChannelWriter {
 /// This approach improves responsiveness and efficiency in handling incoming data.
 fn read_loop(channel: Id<CBL2CAPChannel, Shared>, sender: Sender<Vec<u8>>) {
     #[allow(unused_mut)] 
-    let mut buf = vec![0u8; 1024];
+    let mut buf = [0u8; 1024];
     loop {
         let stream_status = channel.input_stream().stream_status();
         debug!("Read Loop Stream Status: {:?}", stream_status);
@@ -171,7 +171,7 @@ fn read_loop(channel: Id<CBL2CAPChannel, Shared>, sender: Sender<Vec<u8>>) {
         if stream_status == NSStreamStatus(0) || stream_status == NSStreamStatus(6) {
             break;
         }
-        if !channel.input_stream().has_bytes_available() || stream_status != NSStreamStatus(2) {
+        if stream_status != NSStreamStatus(2) {
             thread::sleep(Duration::from_millis(10));
             continue;
         }
@@ -181,12 +181,12 @@ fn read_loop(channel: Id<CBL2CAPChannel, Shared>, sender: Sender<Vec<u8>>) {
             break;
         }
         let size = res.try_into().unwrap();
-        let packet = unsafe { Vec::<u8>::from_raw_parts(buf.as_ptr() as *mut u8, size, size) };
-        if sender.send_blocking(packet.to_vec()).is_err() {
+        let mut packet = Vec::new();
+        packet.extend_from_slice(&buf[..size]);
+        if sender.send_blocking(packet).is_err() {
             debug!("Read Loop Error: Sender is closed");
             break;
         }
-        core::mem::forget(packet);
     }
     debug!("rx_thread_end");
 }

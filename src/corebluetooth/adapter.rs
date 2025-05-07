@@ -5,7 +5,8 @@ use std::sync::Arc;
 
 use futures_core::Stream;
 use futures_lite::{stream, StreamExt};
-use objc_foundation::{INSArray, INSFastEnumeration, NSArray};
+use objc::runtime::{BOOL, NO};
+use objc_foundation::{INSArray, NSString, NSDictionary, INSDictionary, INSFastEnumeration, NSArray, NSObject};
 use objc_id::ShareId;
 use tracing::{debug, error, info, warn};
 
@@ -67,6 +68,7 @@ impl AdapterImpl {
             if queue.is_null() {
                 return None;
             }
+
             CBCentralManager::with_delegate(&delegate, queue).share()
         };
 

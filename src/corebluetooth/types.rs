@@ -8,7 +8,7 @@ use std::os::raw::{c_char, c_void};
 
 use objc::rc::autoreleasepool;
 use objc::runtime::{Object, BOOL, NO};
-use objc::{msg_send, sel, sel_impl};
+use objc::{class, msg_send, sel, sel_impl};
 use objc_foundation::{
     object_struct, INSData, INSDictionary, INSFastEnumeration, INSObject, INSString, NSArray, NSData, NSDictionary,
     NSObject, NSString,
@@ -242,6 +242,8 @@ extern "C" {
     // CBConnectionEventMatchingOption
     static CBConnectionEventMatchingOptionPeripheralUUIDs: id;
     static CBConnectionEventMatchingOptionServiceUUIDs: id;
+
+    static CBCentralManagerOptionShowPowerAlertKey: id;
 }
 
 pub const QOS_CLASS_USER_INTERACTIVE: isize = 0x21;
@@ -361,7 +363,15 @@ impl CBCentralManager {
     pub fn with_delegate(delegate: &CentralDelegate, queue: id) -> Id<CBCentralManager> {
         unsafe {
             let obj: *mut Self = msg_send![Self::class(), alloc];
-            Id::from_retained_ptr(msg_send![obj, initWithDelegate: delegate queue: queue])
+            let key = extern_nsstring(CBCentralManagerOptionShowPowerAlertKey);
+            let value: *mut NSObject = msg_send![class!(NSNumber), numberWithBool:false];
+            let value = Id::from_ptr(value);
+
+            let options: objc_id::Id<NSDictionary<NSString, NSObject>> =
+                NSDictionary::from_keys_and_objects(&[key], vec![value]);
+            use core::ops::Deref;
+            let options = id_or_nil(Some(options.deref()));
+            Id::from_retained_ptr(msg_send![obj, initWithDelegate: delegate queue: queue options: options])
         }
     }
 
@@ -454,7 +464,7 @@ impl CBPeripheral {
     pub fn open_l2cap_channel(&self, psm: u16) {
         unsafe { msg_send![self, openL2CAPChannel: psm] }
     }
-    
+
     pub fn discover_services(&self, services: Option<&NSArray<CBUUID>>) {
         unsafe { msg_send![self, discoverServices: id_or_nil(services)] }
     }
