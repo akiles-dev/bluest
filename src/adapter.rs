@@ -45,6 +45,12 @@ impl Adapter {
         self.0.wait_available().await
     }
 
+    /// Check if adapter is available
+    #[inline]
+    pub fn is_available(&self) -> bool {
+        self.0.is_available()
+    }
+
     /// Attempts to create the device identified by `id`
     #[inline]
     pub async fn open_device(&self, id: &DeviceId) -> Result<Device> {

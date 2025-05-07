@@ -98,6 +98,10 @@ impl AdapterImpl {
         }))
     }
 
+    pub fn is_available(&self) -> bool {
+        self.central.state() == CBManagerState::POWERED_ON
+    }
+
     /// Asynchronously blocks until the adapter is available
     pub async fn wait_available(&self) -> Result<()> {
         let events = self.events();
