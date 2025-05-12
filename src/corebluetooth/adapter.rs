@@ -100,8 +100,13 @@ impl AdapterImpl {
         }))
     }
 
+    /// Check if the adapter is available.
+    ///
+    /// If the state is not known, assume that it's available.
     pub fn is_available(&self) -> bool {
-        self.central.state() == CBManagerState::POWERED_ON
+        let state = self.central.state();
+        info!("state: {:?}", state);
+        state == CBManagerState::POWERED_ON || state == CBManagerState::UNKNOWN
     }
 
     /// Asynchronously blocks until the adapter is available
