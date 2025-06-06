@@ -51,9 +51,12 @@ impl std::fmt::Debug for AdapterImpl {
     }
 }
 
+pub struct Config {
+    pub request_permissions: bool,
+}
+
 impl AdapterImpl {
-    /// Creates an interface to the default Bluetooth adapter for the system
-    pub async fn default() -> Option<Self> {
+    pub async fn with_config(config: Config) -> Option<Self> {
         match CBCentralManager::authorization() {
             CBManagerAuthorization::ALLOWED_ALWAYS => info!("Bluetooth authorization is allowed"),
             CBManagerAuthorization::DENIED => error!("Bluetooth authorization is denied"),
@@ -69,7 +72,7 @@ impl AdapterImpl {
                 return None;
             }
 
-            CBCentralManager::with_delegate(&delegate, queue).share()
+            CBCentralManager::with_delegate(&delegate, queue, config.request_permissions).share()
         };
 
         Some(AdapterImpl {
@@ -79,6 +82,11 @@ impl AdapterImpl {
             #[cfg(not(target_os = "macos"))]
             registered_connection_events: Default::default(),
         })
+    }
+
+    /// Creates an interface to the default Bluetooth adapter for the system
+    pub async fn default() -> Option<Self> {
+        Self::with_config(Config {request_permissions: false}).await
     }
 
     /// A stream of [`AdapterEvent`] which allows the application to identify when the adapter is enabled or disabled.

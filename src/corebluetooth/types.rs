@@ -360,11 +360,11 @@ impl CBUUID {
 }
 
 impl CBCentralManager {
-    pub fn with_delegate(delegate: &CentralDelegate, queue: id) -> Id<CBCentralManager> {
+    pub fn with_delegate(delegate: &CentralDelegate, queue: id, request_permissions: bool) -> Id<CBCentralManager> {
         unsafe {
             let obj: *mut Self = msg_send![Self::class(), alloc];
             let key = extern_nsstring(CBCentralManagerOptionShowPowerAlertKey);
-            let value: *mut NSObject = msg_send![class!(NSNumber), numberWithBool:false];
+            let value: *mut NSObject = msg_send![class!(NSNumber), numberWithBool:request_permissions];
             let value = Id::from_ptr(value);
 
             let options: objc_id::Id<NSDictionary<NSString, NSObject>> =
@@ -690,3 +690,8 @@ impl CBL2CAPChannel {
         unsafe { msg_send![self, PSM] }
     }
 }
+
+#[derive(Default, Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct NFCTagType(pub NSInteger);
+
+impl NFCTagType {}

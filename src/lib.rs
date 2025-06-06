@@ -135,9 +135,9 @@ mod windows;
 
 use std::collections::HashMap;
 
+pub use adapter::{Adapter, AdapterConfig};
 #[cfg(target_os = "linux")]
-pub use ::bluer::Uuid;
-pub use adapter::Adapter;
+pub use bluer::Uuid;
 pub use btuuid::BluetoothUuidExt;
 pub use characteristic::Characteristic;
 pub use descriptor::Descriptor;

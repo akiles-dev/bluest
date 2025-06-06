@@ -10,6 +10,8 @@ use crate::{sys, AdapterEvent, AdvertisingDevice, ConnectionEvent, Device, Devic
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Adapter(sys::adapter::AdapterImpl);
 
+pub type AdapterConfig = sys::adapter::Config;
+
 impl Adapter {
     /// Creates an interface to the default Bluetooth adapter for the system.
     ///
@@ -31,6 +33,13 @@ impl Adapter {
     #[cfg(not(target_os = "android"))]
     pub async fn default() -> Option<Self> {
         sys::adapter::AdapterImpl::default().await.map(Adapter)
+    }
+
+    /// Creates an interface to the default Bluetooth adapter for the system
+    #[inline]
+    #[cfg(not(target_os = "android"))]
+    pub async fn with_config(config: AdapterConfig) -> Option<Self> {
+        sys::adapter::AdapterImpl::with_config(config).await.map(Adapter)
     }
 
     /// A stream of [`AdapterEvent`] which allows the application to identify when the adapter is enabled or disabled.
