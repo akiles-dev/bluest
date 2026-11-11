@@ -1,5 +1,11 @@
 # Change Log
 
+## Unreleased
+
+- (Linux) `open_l2cap_channel()` uses the remote device's address type (was always LE public; failed for random addresses)
+- (Linux) Implement `Device::rssi()`
+- (Linux) `scan()` reports devices again when their advertisement data or RSSI change, and scans LE only
+
 ## 0.6.9
 
 - (MacOS/iOS) Update to `objc2` crates
